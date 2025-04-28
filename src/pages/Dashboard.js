@@ -5,13 +5,11 @@ import { Link } from 'react-router-dom';
 import AppHeader from '../components/Header'; // Your updated header component
 
 const scenarios = [
-  { name: "Cooperation Challenge", category: "Cooperation", icon: <FaUsers size={25} />, image: "/images/ceo-contract-wife.png" },
-  { name: "Empathy Test", category: "Empathy", icon: <FaSmile size={25} />, image: "/images/ceo-contract-wife.png" },
-  { name: "Collaboration Task", category: "Cooperation", icon: <FaHandshake size={25} />, image: "/images/ceo-contract-wife.png" },
-  { name: "Sharing Game", category: "Empathy", icon: <FaHandsHelping size={25} />, image: "/images/ceo-contract-wife.png" },
-  { name: "Communication Drill", category: "Communication", icon: <FaComments size={25} />, image: "/images/ceo-contract-wife.png" },
-  { name: "Conflict Resolution Sim", category: "Conflict Resolution", icon: <FaBalanceScale size={25} />, image: "/images/ceo-contract-wife.png" },
-  { name: "Teamopia: The Cooperation Quest", category: "Cooperation", icon: <FaHandshake size={25} />, image: "/images/ceo-contract-wife.png" }
+  { name: "Empathy Test", category: "Empathy & Conflict Resolution", icon: <FaSmile size={25} />, image: "/images/Teamopia11.png" },
+  { name: "Resolving Conflicts", category: "Empathy & Conflict Resolution", icon: <FaBalanceScale size={25} />, image: "/images/Teamopia9.png" },
+  { name: "Sharing Is Caring", category: "Empathy & Conflict Resolution", icon: <FaHandsHelping size={25} />, image: "/images/Teamopia12.png" },
+
+  { name: "Teamopia: The Cooperation Quest", category: "Cooperation & Communication", icon: <FaHandshake size={25} />, image: "/images/Teamopia7.png" }
 ];
 
 export default function Dashboard() {
@@ -38,12 +36,12 @@ export default function Dashboard() {
       {/* Big Card */}
       <div
         className="relative m-6 rounded-xl overflow-hidden shadow-lg bg-cover bg-center h-60"
-        style={{ backgroundImage: "url('/images/ceo-contract-wife.png')" }}
+        style={{ backgroundImage: "url('/images/Teamopia7.png')" }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-between p-6">
           <h2 className="text-2xl font-bold">Teamopia: The Cooperation Quest</h2>
           <div className="flex justify-between items-center">
-            <span className="text-sm">Chapter 8 of 24 | Finished</span>
+            <span className="text-sm">Level 1 of 3 | In Progress</span>
             <Link to={`/levels/Teamopia: The Cooperation Quest`}>
               <button className="bg-purple-600 text-white py-2 px-4 rounded-full self-end">Play</button>
             </Link>
@@ -53,13 +51,12 @@ export default function Dashboard() {
 
       {/* Categories */}
       <div className="flex space-x-3 px-6 py-2 overflow-x-auto no-scrollbar">
-        {["All", "Empathy", "Cooperation", "Communication", "Conflict Resolution"].map((category) => (
+        {["All", "Empathy & Conflict Resolution", "Cooperation & Communication"].map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-3 py-1 rounded-full text-base ${
-              selectedCategory === category ? 'bg-white text-[#272052]' : 'bg-[#3C2A73]'
-            }`}
+            className={`px-3 py-1 rounded-full text-base ${selectedCategory === category ? 'bg-white text-[#272052]' : 'bg-[#3C2A73]'
+              }`}
           >
             {category}
           </button>
@@ -78,9 +75,14 @@ export default function Dashboard() {
             >
               <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-between p-6">
                 <h3 className="text-xl font-bold">{scenario.name}</h3>
-                <Link to={`/levels/${scenario.name}`}>
+                <Link to={
+                  scenario.name === "Teamopia"
+                    ? `/levels/${scenario.name}`
+                    : `/scenario/${scenario.name}/level/1/${encodeURIComponent("Level 1")}`
+                }>
                   <button className="bg-purple-600 text-white py-2 px-4 rounded-full self-end">Play</button>
                 </Link>
+
               </div>
             </motion.div>
           ))}
@@ -93,7 +95,15 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold mb-2">🔥 Based on Your Recent Activity</h2>
           <div className="flex overflow-x-auto space-x-6 no-scrollbar">
             {scenarios.slice(0, 3).map((scenario, index) => (
-              <Link key={index} to={`/levels/${scenario.name}`}>
+              <Link
+                key={index}
+                to={
+                  scenario.name === "Teamopia"
+                    ? `/levels/${scenario.name}`
+                    : `/scenario/${scenario.name}/level/1/${encodeURIComponent("Level 1")}`
+                }
+              >
+
                 <motion.div
                   className="bg-[#3C2A73] p-4 rounded-xl shadow-lg w-80 flex-shrink-0"
                   whileHover={{ scale: 1.05 }}
@@ -110,25 +120,7 @@ export default function Dashboard() {
             ))}
           </div>
           <br /><br />
-          <h2 className="text-xl font-bold mb-2">You Might Like</h2>
-          <div className="flex overflow-x-auto space-x-6 no-scrollbar">
-            {scenarios.slice(0, 3).map((scenario, index) => (
-              <Link key={index} to={`/levels/${scenario.name}`}>
-                <motion.div
-                  className="bg-[#3C2A73] p-4 rounded-xl shadow-lg w-80 flex-shrink-0"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <div className="text-white">{scenario.icon}</div>
-                  <img
-                    src={scenario.image}
-                    alt={scenario.name}
-                    className="w-full h-36 object-cover rounded-lg my-2"
-                  />
-                  <h3 className="text-lg font-semibold text-center">{scenario.name}</h3>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
+
         </div>
       )}
     </div>

@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useTransform, useScroll } from 'framer-motion';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaStar, FaGamepad } from 'react-icons/fa';
+
+
 
 export default function ScenarioDetail() {
   const { scenarioName, levelNumber, levelName } = useParams();
   const navigate = useNavigate();
-  const [progress, setProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showScenario, setShowScenario] = useState(false);
 
   const scenarioDetails = {
-    "Cooperation Challenge": { description: "A scenario where you need to cooperate with others.", image: "/images/cooperation.png" },
     "Empathy Test": { description: "Test your ability to empathize with others.", image: "/images/empathy.png" },
     "Collaboration Task": { description: "Work together with others to complete a task.", image: "/images/collaboration.png" },
-    "Sharing Game": { description: "Practice sharing with others in this game.", image: "/images/sharing.png" },
+    "Sharing Is Caring": { description: "Practice sharing with others in this game.", image: "/images/Teamopia6.png" },
     "Communication Drill": { description: "Improve your communication skills.", image: "/images/communication.png" },
-    "Conflict Resolution Sim": { description: "Resolve conflicts effectively in this simulation.", image: "/images/conflict.png" },
-    "Teamopia: The Cooperation Quest": { description: "Cooperate with friends to overcome this quest!", image: "/images/scenario7.png" },
+    "Resolving Conflicts": { description: "Resolve conflicts effectively in this simulation.", image: "/images/Teamopia19.png" },
+    "Teamopia: The Cooperation Quest": {
+      description: "Cooperate with friends to overcome this quest!",
+      levels: {
+        "1": "/images/Teamopia19.png",
+        "2": "/images/Teamopia14.png",
+        "3": "/images/Teamopia15.png",
+      },
+      defaultImage: "/images/Teamopia14.png"
+    },
   };
 
+
   const scenario = scenarioDetails[scenarioName];
+  let scenarioImage = scenario?.image;
+
+  if (scenarioName === "Teamopia: The Cooperation Quest" && scenario?.levels) {
+    scenarioImage = scenario.levels[levelNumber] || scenario.defaultImage;
+  }
 
   const funFacts = [
     "Tip: Staying calm under pressure helps you make better decisions.",
@@ -45,22 +59,25 @@ export default function ScenarioDetail() {
 
   const startLoading = () => {
     setIsLoading(true);
-    setProgress(0);
-    setShowScenario(false);
 
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsLoading(false);
-            setShowScenario(true);
-          }, 1000); // Delay before showing the scenario page
-          return 100;
+    setTimeout(() => {
+      setIsLoading(false);
+      if (scenarioName === "Teamopia: The Cooperation Quest") {
+        if (levelNumber === "1") {
+          navigate(`/Teamopia/LevelOne`);
+        } else if (levelNumber === "2") {
+          navigate(`/Teamopia/LevelTwo`);
         }
-        return prevProgress + 1; // Slower progress increment
-      });
-    }, 100); // Slower interval
+        else if (levelNumber === "3") {
+          navigate(`/Teamopia/LevelThree`);
+        } else {
+          setShowScenario(true);
+        }
+      } else {
+        setShowScenario(true);
+      }
+    }, 1000);
+
   };
 
   // Parallax effect for the loading page image
@@ -72,111 +89,104 @@ export default function ScenarioDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="p-6 bg-[#272052] text-white min-h-screen"
+      className="p-6 bg-gradient-to-b from-[#4A3B8C] to-[#272052] text-white min-h-screen"
     >
-      {/* Back Button with Animation */}
+      {/* Back Button with Star Decoration */}
       <motion.button
         whileHover={{ x: -5 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => navigate(`/levels/${scenarioName}`)}
-        className="flex items-center text-purple-400 hover:text-purple-600 mb-4"
+        onClick={() =>
+          scenarioName.includes("Teamopia")
+            ? navigate(`/levels/${scenarioName}`)
+            : navigate(`/dashboard`)
+        }
+        className="flex items-center text-purple-300 hover:text-yellow-400 mb-4 group"
       >
-        <FaArrowLeft className="mr-2" /> Back to Levels
+        <FaArrowLeft className="mr-2 transition-transform group-hover:-translate-x-1" />
+        <span className="flex items-center">
+          {scenarioName.includes("Teamopia") ? "Back to Levels" : "Back to Dashboard"}
+          <FaStar className="ml-2 text-yellow-300 animate-pulse" />
+        </span>
       </motion.button>
 
-      {/* Scenario Title */}
-      <h1 className="text-3xl font-bold mb-4">Scenario: {scenarioName}</h1>
-      {levelNumber && levelName && (
-        <h2 className="text-2xl font-bold mb-4">
-          {decodeURIComponent(levelName)}
-        </h2>
-      )}
+      {/* Scenario Title with Bouncy Animation */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 100 }}
+        className="mb-8 text-center"
+      >
+        <h1 className="text-4xl font-bold mb-2 font-[LuckiestGuy] tracking-wide text-yellow-300 drop-shadow-md">
+          {scenarioName}
+        </h1>
+        {levelNumber && levelName && (
+          <h2 className="text-2xl font-semibold text-purple-200">
+            {decodeURIComponent(levelName)}
+          </h2>
+        )}
+      </motion.div>
 
-      {/* Scenario Details */}
+      {/* Scenario Details Container */}
       {scenario ? (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-[#3C2A73] p-6 rounded-lg shadow-lg"
+          className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-2 border-purple-300/30 relative"
         >
-          {/* Scenario Image with Hover Animation */}
-          <motion.img
-            src={scenario.image}
-            alt={scenarioName}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.3 }}
-            className="w-full h-72 object-cover rounded-lg mb-4"
-          />
-
-          <p className="text-lg mb-4">{scenario.description}</p>
-
-          {/* Progress Indicator */}
-          <div className="mb-4">
-            <p className="text-sm">Progress: {progress}%</p>
-            <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-              <motion.div
-                className="bg-green-400 h-full"
-                initial={{ width: "0%" }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, bounce: 0.5 }}
-                style={{ boxShadow: progress === 100 ? "0 0 10px 5px rgba(72, 187, 120, 0.8)" : "none" }}
-              />
-            </div>
+          {/* Floating Decorations */}
+          <div className="absolute -top-4 -left-4">
+            <FaGamepad className="text-yellow-300 text-3xl animate-float" />
+          </div>
+          <div className="absolute -bottom-4 -right-4">
+            <FaStar className="text-purple-300 text-3xl animate-float-delayed" />
           </div>
 
-          {/* Start Scenario Button with Animation */}
+          {/* Full-width Image Container */}
+          <motion.div
+            className="w-full h-80 md:h-96 rounded-2xl overflow-hidden border-4 border-white/20 relative mb-6"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+          >
+            <img
+              src={scenarioImage}
+              alt={scenarioName}
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          </motion.div>
+
+          <p className="text-lg md:text-xl text-purple-100 mb-6 text-center font-medium leading-relaxed">
+            {scenario.description}
+          </p>
+
+          {/* Animated Start Button */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0px 0px 20px rgba(255, 215, 0, 0.5)"
+            }}
             whileTap={{ scale: 0.95 }}
             onClick={startLoading}
-            className="bg-purple-600 text-white py-2 px-4 rounded-full mt-4 w-full hover:bg-purple-700"
+            className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl text-xl font-bold text-purple-900 
+                      flex items-center justify-center space-x-3 hover:shadow-glow transition-all"
           >
-            Start Scenario
+            <FaGamepad className="text-2xl" />
+            <span>Start Adventure!</span>
           </motion.button>
+
+          {/* Fun Facts Carousel */}
+          <div className="mt-8 p-4 bg-purple-200/10 rounded-xl">
+            <p className="text-center text-sm md:text-base text-purple-100 italic">
+              {funFacts[Math.floor(Math.random() * funFacts.length)]}
+            </p>
+          </div>
         </motion.div>
       ) : (
-        <p className="text-red-500">Scenario not found.</p>
+        <p className="text-red-400 text-center">Scenario not found!</p>
       )}
 
-      {/* Loading Page */}
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.8 }}
-            className="fixed inset-0 bg-[#272052] flex flex-col items-center justify-center p-6 animated-gradient"
-          >
-            <motion.img
-              src={scenario.image}
-              alt="Loading"
-              style={{ y }}
-              className="w-full h-72 object-cover rounded-lg mb-4"
-            />
 
-            <motion.p
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1.8, delay: 0.2 }}
-              className="text-lg mb-4 text-center max-w-2xl px-4"
-            >
-              {funFacts[Math.floor(Math.random() * funFacts.length)]}
-            </motion.p>
-
-            <div className="w-64 bg-gray-700 h-2 rounded-full overflow-hidden">
-              <motion.div
-                className="bg-green-400 h-full"
-                initial={{ width: "0%" }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1 }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Scenario Page Overlay */}
       <AnimatePresence>

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "teamopia-tts",
+  "private_key_id": "052594347af8febabc3d20377bba9d0aa3da32d4",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCy+QyYy5LjQZX2\nlYn9YEh+nZm7mpGQR6E/fJgF5GUnEvDVll9Rzn7GT6V1u5c8VLG8wS+OrNwqvzFG\nEYqLrPk1vNZpydqvc9xvtWU6jbAw5/04O1B379aPFLfjDdBaGiJl0DAdGsr44cxU\nTpafkaMeVlkQ08oaBrjbzeiomnUK47tealA4g/fRuhibIv9/DFP7da+u3+OaUrdS\nuhzMn5qbuNq7t/4Re4ovRKeyTdRClJonZh+hAIMbEFnAURCIIVzP04D+w0c5kf2X\np/M8cYKjHwQCfbaNxeBvQDLhLWEQTQh+1T78igmnrK3DUIAXT4TVkOMxWTvChFg5\n2uXHmVOnAgMBAAECggEAAWqVkrjW2dGzjebw6dVXlqvJDE/0w6mcUCQX7C7fLTN8\nPkowJH7zWlEhL3DV0qHC9FM9Dy5+T0SUOJqppc8vaWpi8gDyunRND1z4WVQQJz9/\n5JT1TNpB1TbBi8oYsl79ASDV3TY+SIoU6oWZjSBw/4c/1jF4BjFq/z0sItMo9GQF\ntblIKV/Ea/ppjPgaxi94SNMTEvaH4VHY1mumNG8XFL8a027d9z1BKVcC3zF0wCBo\nwwQ1wVm7R6/H9GMIVeusYEFBm1ySWVGzWtJ0/T1Z1GhW3vGAaLoOkMWAIkgrHC+M\ntI1ptBVV7oiKHEnuz/NtUXC7bSW2oSl/c3KOyCpENQKBgQDzIf2bLy7M+ixkC08t\nwr5HCDmMeeLUYPnMzPxpWRfW/M5X0QM2OiUAlrlbXR3DhXb23dhgNmSF8pJutSo6\n8rSD8YCtBRR+S2ZQaEzZnYuC2eMiQF4aWDgriHiOtO0yI8/eMrPJfQyX4jQO3Q1Z\nwtLFiftcr5QKtQ3FTYVuvMYAMwKBgQC8cc6+F0tTXzu4Ck25H8j4iDq9907KsB8N\nb4kkRHU2Li2+58FPvTWxG4I0Aqp4P0+d2/Q/DTht/DbgWS5yHKqBiZJAuEOACa6I\n2/XmeMJI9R2ilFo+oWvJS0y/Un8HcAYfEhMo0PMEwFZ918AV2hkwrR1vlDYNnELU\n4WZhfwIavQKBgDNc6eufwx5Qd5JHBVogevwck7PGiBHfzsXiRCypQq0LSTgqEqih\nDfIa5VuUx1Xn2yL56N0igIf/n8m9ggdkAJijK1Dh8ttfaGTyM9IBQ1jIWQCCYp7k\nJjGkKfvT4wwlnqNNSMf3H/LyOZcuQcTFsKtEpBKHkRnV9+vHnbmwLZAbAoGAfrit\nhYkWn2cQOq+7Gn10YSUDE5IGCykqiJdzis76X0fofVNN3LhpLcNI6H7OcfRpLsel\n1OyoANY1dOKj6Bq80kVX82u2AJkCJIh+MNEOHY+vsQ/ALBPS7tdTMelhAPhlNWmr\nNqxkb9KDlzaJtmgmvmP7wnfRbY+iJZO5jGCjYqUCgYEArct8m8QH9zdXae/66bz8\nHRd4hkz5djwlNCacobsdb+8ECDkjMrhbAA3Ntw/y8nQIgCwOYE/DMbKwAXs/TH/Q\nw4VTHDfQshOCnZv0s0hPo/dOI+USJ5CXHtOcLSNqkC09F+kDEDbx8vpCpFlYOHrf\nKhJ4kOYibHHymrbwKQRRlKM=\n-----END PRIVATE KEY-----\n",
+  "client_email": "tts-access@teamopia-tts.iam.gserviceaccount.com",
+  "client_id": "118081730385564949313",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tts-access%40teamopia-tts.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

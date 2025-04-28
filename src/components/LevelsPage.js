@@ -11,12 +11,20 @@ const levelNames = {
     "Sharing Game": ["Lvl 1: Giveaway Grove", "Lvl 2: Share Square", "Lvl 3: Generosity Gardens", "Lvl 4: Caring Corner", "Lvl 5: Sharing Square"],
     "Communication Drill": ["Lvl 1: Chatter Chase", "Lvl 2: Talk Trail", "Lvl 3: Dialogue Drive", "Lvl 4: Conversation Cove", "Lvl 5: Communication Canyon"],
     "Conflict Resolution Sim": ["Lvl 1: Peace Path", "Lvl 2: Agreement Avenue", "Lvl 3: Resolution Ridge", "Lvl 4: Harmony Highway", "Lvl 5: Conflict Canyon"],
-    "Teamopia: The Cooperation Quest": ["Lvl 1: Cooperation Canyon", "Lvl 2: Unity Valley", "Lvl 3: Teamwork Tundra", "Lvl 4: Alliance Archipelago", "Lvl 5: Harmony Highlands"]
+    "Teamopia: The Cooperation Quest": ["Lvl 1: Cooperation Canyon", "Lvl 2: Unity Valley", "Lvl 3: Teamwork Tundra"]
 };
+const levelImages = [
+    "/images/Teamopia3.png",
+    "/images/Teamopia4.png",
+    "/images/Teamopia11.png",
+    "/images/Teamopia4.png",
+    "/images/Teamopia5.png"
+];
+
 
 export default function LevelsPage() {
     const { scenarioName } = useParams();
-    const levels = levelNames[scenarioName] || ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5"];
+    const levels = levelNames[scenarioName] || ["Level 1", "Level 2", "Level 3"];
     // Retrieve the stored avatar from localStorage
     const storedAvatar = localStorage.getItem('selectedAvatar');
 
@@ -38,18 +46,18 @@ export default function LevelsPage() {
                         <motion.div
                             key={index}
                             className="relative rounded-xl overflow-hidden shadow-lg bg-cover bg-center h-60"
-                            style={{ backgroundImage: "url('/images/ceo-contract-wife.png')" }}
+                            style={{ backgroundImage: `url('${levelImages[index % levelImages.length]}')` }}
                             whileHover={{ scale: 1.05 }}
                         >
                             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center p-6">
                                 <h3 className="text-2xl font-bold text-center">{level}</h3>
-                                {/* Build the URL with scenarioName, levelNumber, and levelName */}
                                 <Link to={`/scenario/${scenarioName}/level/${index + 1}/${encodeURIComponent(level)}`}>
                                     <button className="bg-purple-600 text-white py-2 px-6 rounded-full mt-4">Play</button>
                                 </Link>
                             </div>
                         </motion.div>
                     ))}
+
                 </div>
             </div>
         </div>

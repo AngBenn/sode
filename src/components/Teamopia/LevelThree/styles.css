@@ -1,0 +1,184 @@
+/* Remove dark background override */
+.game-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  /* Remove background: #1a1a1a; */
+}
+
+canvas {
+  background: linear-gradient(#87CEEB, #E0FFFF); /* Sky blue gradient */
+  touch-action: none;
+}
+.settings-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ffcc66;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 30px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.settings-button:hover {
+  background: #ffa500;
+}
+.tutorial-ui {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  color: #fff;
+  z-index: 10;
+}
+
+.instruction-box {
+  background: rgba(0,0,0,0.6);
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.lose-screen {
+  font-size: 48px;
+  color: red;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.tutorial-prompt {
+  position: fixed;
+  top: 50%; /* Position at the center vertically */
+  left: 50%; /* Position at the center horizontally */
+  transform: translate(-50%, -50%); /* Offset by 50% to center */
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+  font-family: 'Fredoka', 'Comic Sans MS', cursive;
+}
+
+.instruction-bubble {
+  background: #fffaf0; /* Lighter background color */
+  padding: 2rem; /* Increased padding */
+  border-radius: 2rem; /* Rounded corners */
+  font-size: 1.6rem; /* Larger font size */
+  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.2); /* Soft drop-shadow */
+  display: inline-block;
+  max-width: 600px;
+  animation: float 2s ease-in-out infinite;
+  border: 4px dashed #FFA07A; /* Dashed border */
+}
+
+.warning-bubble {
+  background: rgba(255, 50, 50, 0.9);
+  color: white;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  font-size: 1.2rem;
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+.lose-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.big-red-x {
+  font-size: 10rem;
+  color: red;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.tutorial-overlay {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.tutorial-interface {
+  position: fixed;
+  top: 50%; /* Position at the center vertically */
+  left: 50%; /* Position at the center horizontally */
+  transform: translate(-50%, -50%); /* Offset by 50% to center */
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.instruction-card {
+  background: #fffaf0; /* Light background */
+  padding: 1.5rem;
+  border-radius: 2rem; /* Rounded corners */
+  font-family: 'Fredoka', 'Comic Sans MS', cursive;
+  max-width: 1200px;
+  width: 20vw; 
+  margin: 0 auto;
+  animation: slideIn 0.5s ease-out;
+  border: 4px dashed #FFA07A; /* Dashed border */
+  position: relative;
+  top: 0;
+  bottom: 0;
+  left: 30vw;
+  right: 20vw;
+}
+
+.warning-alert {
+  background: rgba(255, 50, 50, 0.9);
+  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  animation: pulseWarning 1s infinite;
+}
+
+.speaker-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulseWarning {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

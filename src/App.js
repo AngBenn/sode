@@ -11,6 +11,11 @@ import ScenarioDetail from './components/ScenarioDetail';
 import Levels from './components/LevelsPage';
 import Profile from './components/Profile';
 import LandingPage from './pages/LandingPage';
+import LevelOne from './components/Teamopia/LevelOne/LevelOne';
+import LevelTwo from './components/Teamopia/LevelTwo/LevelTwo';
+import LevelThree from './components/Teamopia/LevelThree/LevelThree';
+import './shader-chunks';
+
 
 
 
@@ -26,6 +31,10 @@ function App() {
         <Route path="/scenario" element={<Scenario />} />
         <Route path="/levels/:scenarioName" element={<Levels />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/Teamopia/LevelOne" element={<LevelOne />} />
+        <Route path="/Teamopia/LevelTwo" element={<LevelTwo />} />
+        <Route path="/Teamopia/LevelThree" element={<LevelThree />} />
+
         
         
         <Route path="/scenario/:scenarioName/level/:levelNumber/:levelName" element={<ScenarioDetail />} />

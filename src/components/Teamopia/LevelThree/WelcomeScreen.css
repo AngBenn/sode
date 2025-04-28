@@ -1,0 +1,122 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    /* Changed from 100vh to 100% */
+    height: 100%;
+    overflow: auto;
+}
+
+.welcome-screen {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    left: 2vw;
+    right: 3vw;
+    
+    z-index: 9999;
+    font-family: 'Fredoka', 'Comic Sans MS', cursive;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Removed redundant width/height (inset:0 handles this) */
+}
+
+.welcome-content {
+    background-color: #fffaf0;
+    padding: 60px;
+    border-radius: 2rem;
+    
+    text-align: center;
+    width: 55vw;             /* Make it responsive and wide */
+    max-width: 1200px;       /* Optional limit to prevent it from getting too huge on big screens */
+    border: 4px dashed #FFA07A;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+
+
+
+.welcome-text {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: left;
+    /* Align text to the left */
+}
+
+/* Add this new rule for the image container */
+.welcome-image {
+    flex-shrink: 0;
+    /* Prevent image area from shrinking */
+}
+
+
+.child-image {
+    width: 200px;
+    /* Increase width */
+    height: 500px;
+    filter: drop-shadow(0 4px 15px rgba(255, 140, 0, 0.2));
+    flex-shrink: 0;
+    /* Prevent image from shrinking in flex container */
+}
+
+
+.welcome-content h1 {
+    font-size: 3em;
+    color: #FF7F50;
+    margin: 0;
+}
+
+.welcome-content p {
+    font-size: 1.4em;
+    color: #8B4513;
+    margin: 20px 0;
+    line-height: 1.5;
+}
+
+.welcome-content button {
+    padding: 16px 32px;
+    font-size: 1.1em;
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+
+
+
+@media (max-width: 768px) {
+    .welcome-content {
+        padding: 40px 20px;
+        flex-direction: column;
+        /* Revert to column layout for smaller screens */
+    }
+
+    .child-image {
+        width: 200px;
+    }
+
+    .welcome-content h1 {
+        font-size: 2em;
+    }
+
+    .welcome-content p {
+        font-size: 1.1em;
+    }
+
+    .welcome-content button {
+        padding: 14px 24px;
+        font-size: 1em;
+    }
+}
