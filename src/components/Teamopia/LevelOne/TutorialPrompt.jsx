@@ -29,7 +29,7 @@ const TutorialPrompt = ({
     switch(step) {
       case 0: 
         return { 
-          title: "Go to Amy", 
+          title: "Go to Ama", 
           content: "Walk to Ama using the arrow keys", 
           emoji: "🚶" 
         };

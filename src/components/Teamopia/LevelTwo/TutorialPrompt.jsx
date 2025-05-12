@@ -22,7 +22,7 @@ const TutorialPrompt = ({ step, showWarning, playerPosition, amyPosition, doorPo
       <>
         <div className="speaker-icon">🎮</div>
         <h3>Welcome to the Adventure!</h3>
-        <p>Use arrow keys to move to Amy</p>
+        <p>Use arrow keys to move to Ama</p>
       </>
     )}
     {step === 1 && (
