@@ -136,7 +136,7 @@ const ColorChallengeManager = ({
             setTutorialStep(1);
             setTimeout(() => {
                 startNextRound(true);
-            }, 3000);
+            }, 2000);
         }
     }, []);
 
@@ -163,18 +163,8 @@ const ColorChallengeManager = ({
             setTutorialStep(2);
         } else {
             setTutorialStep(4);
-            // Find all center squares with the correct color
-            const possibleSquares = newSquares.filter(s => 
-                s.color === correct && 
-                Math.abs(s.position.x) <= 4.2 && 
-                Math.abs(s.position.z) <= 4.2
-            );
-            if (possibleSquares.length === 0) {
-                console.error('No valid center squares for Amy!');
-                return;
-            }
-            const randomSquare = possibleSquares[Math.floor(Math.random() * possibleSquares.length)];
-            setAmyTarget(randomSquare.position);
+            // Set Amy's target to the center (0,0,0)
+            setAmyTarget(new THREE.Vector3(0, 0.1, -20));
         }
     };
 
@@ -186,19 +176,43 @@ const ColorChallengeManager = ({
         const direction = targetPos.clone().sub(amyPos).normalize();
         const speed = 4 * delta;
 
-        if (amyPos.distanceTo(targetPos) > 0.5) {
+        // Calculate distance to target
+        const distanceToTarget = amyPos.distanceTo(targetPos);
+
+        if (distanceToTarget > 0.5) {
+            // Move Amy toward the target
             const newPos = amyPos.clone().add(direction.multiplyScalar(speed));
+            
+            // Ensure Amy stays at a proper height
+            newPos.y = 0;
+            
+            // Update Amy's position
             amyRef.current.position.copy(newPos);
             amyPosRef.current.copy(newPos);
             setAmyPosition([newPos.x, newPos.y, newPos.z]);
+            
+            // Make Amy face toward the target
+            if (amyRef.current.rotation) {
+                const angle = Math.atan2(direction.x, direction.z);
+                amyRef.current.rotation.y = angle;
+            }
         } else {
+            // Amy has reached the center
             setAmyTarget(null);
             setTutorialStep(5);
+            setPlayerTurn(true);
+            
+            // Make sure Amy is positioned exactly at center for visual clarity
+            const centerPos = new THREE.Vector3(0, 0, 0);
+            amyRef.current.position.copy(centerPos);
+            amyPosRef.current.copy(centerPos);
+            setAmyPosition([0, 0, 0]);
+            
             setTimeout(() => {
                 setCurrentRound((c) => {
                     const newRound = c + 1;
                     if (newRound < TOTAL_ROUNDS) {
-                        setPlayerTurn(true);
+                        
                         startNextRound(true);
                     } else {
                         setTutorialStep(6);
