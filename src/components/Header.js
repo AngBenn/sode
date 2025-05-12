@@ -32,17 +32,7 @@ export default function AppHeader({ storedAvatar }) {
           />
         </div>
 
-        {/* Center: Coin Count */}
-        <div className="flex items-center space-x-2">
-          <button className="bg-purple-600 text-white py-2 px-4 rounded-full flex items-center space-x-2">
-            <img
-              src={require('../assets/images/coins 2.png')}
-              alt="Coin"
-              className="w-6 h-6"
-            />
-            <span className="text-lg">602</span>
-          </button>
-        </div>
+       
 
         {/* Right: Profile Avatar with Dropdown */}
         <div className="relative">
