@@ -155,7 +155,7 @@ const PuzzleBoard = ({ onPuzzleComplete }) => {
         <div className="side-panel">
           <img src={puzzles[currentLevel].image} alt="Level hint" className="character-image" />
           <div className="tutorial-message">
-            {userTurn ? "Your turn! Drag tiles to solve the puzzle." : "Amy's turn! Watch her swap!"}
+            {userTurn ? "Your turn! Drag tiles to solve the puzzle." : "Ama's turn! Watch her swap!"}
           </div>
           {showWarning && (
             <div className="warning-message">

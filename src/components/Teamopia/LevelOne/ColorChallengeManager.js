@@ -95,8 +95,8 @@ const ColorChallengeManager = ({
     const amyPosRef = useRef(new THREE.Vector3(...amyPosition));
     const TOTAL_ROUNDS = 4;
 
-    // Generate the colored squares grid
-    const generateSquares = () => {
+    // Generate the colored squares grid with center restriction for Amy
+    const generateSquares = (isAmyTurn = false) => {
         const newSquares = [];
         const gridSize = 2;
         const spacing = 4.2;
@@ -112,7 +112,21 @@ const ColorChallengeManager = ({
             }
         }
 
-        const correct = newSquares[Math.floor(Math.random() * newSquares.length)].color;
+        let correct;
+        if (isAmyTurn) {
+            // Filter center squares (positions within -4.2 to 4.2 on x and z)
+            const centerSquares = newSquares.filter(s => {
+                const xPos = s.position.x;
+                const zPos = s.position.z;
+                return Math.abs(xPos) <= 4.2 && Math.abs(zPos) <= 4.2;
+            });
+            // Select correct color from center squares
+            correct = centerSquares[Math.floor(Math.random() * centerSquares.length)].color;
+        } else {
+            // Select correct color from all squares
+            correct = newSquares[Math.floor(Math.random() * newSquares.length)].color;
+        }
+
         return { newSquares, correct };
     };
 
@@ -121,23 +135,24 @@ const ColorChallengeManager = ({
         if (currentRound === 0) {
             setTutorialStep(1);
             setTimeout(() => {
-                startNextRound(true); // Start player's first turn
+                startNextRound(true);
             }, 3000);
         }
     }, []);
+
     useEffect(() => {
         if (showKey && !levelCompleted) {
-          const successTimer = setTimeout(() => {
-            setShowSuccess(true);
-            setLevelCompleted(true);
-          }, 5000);
-          return () => clearTimeout(successTimer);
+            const successTimer = setTimeout(() => {
+                setShowSuccess(true);
+                setLevelCompleted(true);
+            }, 5000);
+            return () => clearTimeout(successTimer);
         }
-      }, [showKey, levelCompleted]); // Add this hook in your component
+    }, [showKey, levelCompleted]);
 
     // Start a new round with specified turn
     const startNextRound = (isPlayerTurn) => {
-        const { newSquares, correct } = generateSquares();
+        const { newSquares, correct } = generateSquares(!isPlayerTurn);
         setSquares(newSquares);
         setCorrectColor(correct);
 
@@ -145,10 +160,20 @@ const ColorChallengeManager = ({
         setCurrentColor(colorName);
 
         if (isPlayerTurn) {
-            setTutorialStep(2); // Player's turn
+            setTutorialStep(2);
         } else {
-            setTutorialStep(4); // Amy's turn
-            const randomSquare = newSquares.find(s => s.color === correct);
+            setTutorialStep(4);
+            // Find all center squares with the correct color
+            const possibleSquares = newSquares.filter(s => 
+                s.color === correct && 
+                Math.abs(s.position.x) <= 4.2 && 
+                Math.abs(s.position.z) <= 4.2
+            );
+            if (possibleSquares.length === 0) {
+                console.error('No valid center squares for Amy!');
+                return;
+            }
+            const randomSquare = possibleSquares[Math.floor(Math.random() * possibleSquares.length)];
             setAmyTarget(randomSquare.position);
         }
     };
@@ -162,21 +187,19 @@ const ColorChallengeManager = ({
         const speed = 4 * delta;
 
         if (amyPos.distanceTo(targetPos) > 0.5) {
-            // Move Amy
             const newPos = amyPos.clone().add(direction.multiplyScalar(speed));
             amyRef.current.position.copy(newPos);
             amyPosRef.current.copy(newPos);
             setAmyPosition([newPos.x, newPos.y, newPos.z]);
         } else {
-            // Clear Amy's target immediately to prevent reprocessing
-            setAmyTarget(null); // <-- CRITICAL FIX
+            setAmyTarget(null);
             setTutorialStep(5);
             setTimeout(() => {
                 setCurrentRound((c) => {
                     const newRound = c + 1;
                     if (newRound < TOTAL_ROUNDS) {
                         setPlayerTurn(true);
-                        startNextRound(true); // Player's next turn
+                        startNextRound(true);
                     } else {
                         setTutorialStep(6);
                         setTimeout(() => {
@@ -190,7 +213,6 @@ const ColorChallengeManager = ({
         }
     });
 
-    // Handle player's square selection
     const handleSquareClick = (squareColor) => {
         if (!playerTurn) return;
 
@@ -199,10 +221,9 @@ const ColorChallengeManager = ({
             setTimeout(() => {
                 setCurrentRound((c) => {
                     const newRound = c + 1;
-                    // Only switch to Amy's turn if rounds remain
                     if (newRound < TOTAL_ROUNDS) {
                         setPlayerTurn(false);
-                        startNextRound(false); // Amy's turn
+                        startNextRound(false);
                     }
                     return newRound;
                 });
