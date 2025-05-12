@@ -1,0 +1,21 @@
+.avatar-happy img {
+    animation: bounce 2s infinite;
+  }
+  .avatar-angry img {
+    animation: shake 0.6s infinite;
+  }
+  .avatar-sad img {
+    filter: grayscale(40%);
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  

@@ -13,9 +13,9 @@ export default function LoseScreen({ onRetry }) {
     <div className="lose-screen">
       <div className="lose-content">
         <div className="big-red-x">❌</div>
-        <h2>Oh no! You wandered too far!</h2>
+        <h2>Challenge Failed 😞</h2>
         <button className="retry-button" onClick={onRetry}>
-          Try Again
+          Click To Try Again
         </button>
       </div>
     </div>

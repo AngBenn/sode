@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef, useMemo } from 'react';
 import { Text, PerspectiveCamera, useProgress, Html } from '@react-three/drei';
 import Environment from './Environment';
 import Avatar from './Avatar';
@@ -16,7 +16,10 @@ import TutorialPrompt from './TutorialPrompt';
 import LoseScreen from './LoseScreen';
 import useSound from 'use-sound';
 import * as THREE from 'three';
-import AvatarDebug from './AvatarDebug';
+import ColorChallengeManager from './ColorChallengeManager';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const keyMap = {
   forward: 'ArrowUp',
@@ -24,6 +27,7 @@ const keyMap = {
   left: 'ArrowLeft',
   right: 'ArrowRight',
 };
+
 
 function AudioManager({ musicOn }) {
   const bgMusicRef = useRef();
@@ -33,7 +37,7 @@ function AudioManager({ musicOn }) {
     if (audio) {
       audio.volume = 0.3;
       audio.loop = true;
-      musicOn ? audio.play().catch(() => {}) : audio.pause();
+      musicOn ? audio.play().catch(() => { }) : audio.pause();
     }
   }, [musicOn]);
 
@@ -49,8 +53,7 @@ function ProgressTracker({ setProgress }) {
 export default function LevelOne() {
   const gameLogic = GameLogic();
   const [amyPosition, setAmyPosition] = useState([2, 0, -3]);
-  const [keyPosition] = useState(new THREE.Vector3(2,0,-30));
-
+  const [keyPosition, setKeyPosition] = useState(new THREE.Vector3(100, 0, 100));
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -58,16 +61,27 @@ export default function LevelOne() {
   const [musicOn, setMusicOn] = useState(true);
   const [soundOn, setSoundOn] = useState(true);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const [tutorialStep, setTutorialStep] = useState(() => {
+    const saved = localStorage.getItem('tutorialStep');
+    return saved !== null ? parseInt(saved) : 0;
+  });
   const [hasLost, setHasLost] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [levelCompleted, setLevelCompleted] = useState(false);
-
+  const [colorChallengeActive, setColorChallengeActive] = useState(false);
+  const [challengeCompleted, setChallengeCompleted] = useState(false);
+  const [currentColor, setCurrentColor] = useState('');
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+  const [lives, setLives] = useState(3);
+  const navigate = useNavigate();
+  
+  // Sound effects
   const [playApproach] = useSound('/sounds/approach-amy.mp3', { volume: soundOn ? 1 : 0 });
   const [playFindDoor] = useSound('/sounds/find-door.mp3', { volume: soundOn ? 1 : 0 });
   const [playStayClose] = useSound('/sounds/stay-close.mp3', { volume: soundOn ? 1 : 0 });
   const [playSuccess] = useSound('/sounds/victory.mp3', { volume: soundOn ? 1 : 0 });
+  const [playCollision] = useSound('/sounds/lose.mp3', { volume: soundOn ? 0.5 : 0 });
 
   const intervalRef = useRef(null);
 
@@ -90,6 +104,10 @@ export default function LevelOne() {
       clearInterval(intervalRef.current);
     };
   }, [tutorialStep, showTutorial, soundOn]);
+  
+  useEffect(() => {
+    localStorage.setItem('tutorialStep', tutorialStep);
+  }, [tutorialStep]);
 
   useEffect(() => {
     if (showWarning && soundOn) playStayClose();
@@ -105,8 +123,8 @@ export default function LevelOne() {
       setShowTutorial(true);
       setTutorialStep(0);
     }, 2000);
-    
   };
+  
 
   const handleRestart = () => {
     setGameStarted(false);
@@ -116,6 +134,9 @@ export default function LevelOne() {
     setMinDelayPassed(false);
     setLoadingProgress(0);
     setLevelCompleted(false);
+    setColorChallengeActive(false);
+    setChallengeCompleted(false);
+    setLives(3);
     gameLogic.setAvatarPosition([-1, 1, -3]);
     setAmyPosition([2, 1, -3]);
     gameLogic.setAmyAction('idle');
@@ -123,7 +144,8 @@ export default function LevelOne() {
 
   const handleLevelComplete = () => {
     setLevelCompleted(true);
-    gameLogic.setAmyAction('excited');
+    setColorChallengeActive(true);
+    gameLogic.setAmyAction('idle'); // Set Amy to idle before starting the challenge
     if (soundOn) playSuccess();
   };
 
@@ -163,14 +185,17 @@ export default function LevelOne() {
                 amyPosition={amyPosition}
                 setAmyPosition={setAmyPosition}
                 keyPosition={keyPosition}
-                amyAction={gameLogic.amyAction} 
+                amyAction={gameLogic.amyAction}
                 onAmyActionChange={(action) => gameLogic.setAmyAction(action)}
                 onLevelComplete={handleLevelComplete}
                 showWarning={showWarning}
                 setShowWarning={setShowWarning}
+                challengeCompleted={challengeCompleted}
+                colorChallengeActive={colorChallengeActive}
               />
             )}
-            {gameStarted && showTutorial && (
+            
+            {gameStarted && showTutorial && !colorChallengeActive && (
               <TutorialManager
                 playerPosition={gameLogic.avatarPosition}
                 amyPosition={amyPosition}
@@ -181,45 +206,74 @@ export default function LevelOne() {
                 showWarning={showWarning}
                 setShowWarning={setShowWarning}
                 gameStarted={gameStarted}
+                colorChallengeActive={colorChallengeActive}
               />
             )}
+            
             {!isLoading && !gameStarted && (
               <Html center>
                 <WelcomeScreen onStartGame={handleStartGame} />
               </Html>
             )}
+            
+            {colorChallengeActive && !challengeCompleted && (
+              <ColorChallengeManager
+                playerPosition={gameLogic.avatarPosition}
+                amyPosition={amyPosition}
+                setAmyPosition={setAmyPosition}
+                onFail={() => {
+                  setHasLost(true);
+                  setLives(0);
+                }}
+                setTutorialStep={setTutorialStep}
+                setCurrentColor={setCurrentColor}
+                setIsPlayerTurn={setIsPlayerTurn}
+                lives={lives}
+                setLives={setLives}
+                onComplete={() => {
+                  setChallengeCompleted(true);
+                  setKeyPosition(new THREE.Vector3(2, 0, -30));
+                  if(soundOn) playSuccess();
+                }}
+                soundOn={soundOn}
+              />
+            )}
           </Suspense>
         </Canvas>
 
         {gameStarted && showTutorial && (
-          <div className="tutorial-overlay">
-            <TutorialPrompt
-              step={tutorialStep}
-              showWarning={showWarning}
-              playerPosition={gameLogic.avatarPosition}
-              amyPosition={amyPosition}
-              keyPosition={keyPosition}
-              gameStarted={gameStarted}
-            />
-          </div>
+          <TutorialPrompt
+            step={tutorialStep}
+            showWarning={showWarning}
+            currentColor={currentColor}
+            isPlayerTurn={isPlayerTurn}
+            lives={lives}
+          />
         )}
 
-        {levelCompleted && (
-          <div className="level-complete-overlay">
-            <div className="level-complete-modal">
-              <h2>Level Complete!</h2>
-              <div className="stars-container">
-                <span className="star">⭐</span>
-                <span className="star">⭐</span>
-                <span className="star">⭐</span>
-                <span className="star">⭐</span>
-                <span className="star">⭐</span>
-              </div>
-              <p>You've successfully completed Level One!</p>
-              <button onClick={() => console.log("Next Level")}>Next Level</button>
-            </div>
-          </div>
-        )}
+{challengeCompleted && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+    <div className="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-md w-full animate-fade-in">
+      <h2 className="text-3xl font-bold mb-4 text-green-600">🎉 Level Complete!</h2>
+
+      <div className="flex justify-center gap-2 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <span key={i} className="text-4xl animate-pulse">⭐</span>
+        ))}
+      </div>
+
+      <p className="text-lg text-gray-700 mb-6">You've successfully completed the challenge!</p>
+
+      <button
+        onClick={() => navigate("/dashboard")}
+        className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition"
+      >
+        Back to Dashboard
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
 
       {isMenuVisible && (
@@ -245,6 +299,10 @@ export default function LevelOne() {
           <p>Amy Action: {gameLogic.amyAction || 'walking'}</p>
           <p>Warning: {showWarning ? 'Yes' : 'No'}</p>
           <p>Level Complete: {levelCompleted ? 'Yes' : 'No'}</p>
+          <p>Current Color: {currentColor}</p>
+          <p>Lives: {lives}</p>
+          <p>Player Turn: {isPlayerTurn ? 'Yes' : 'No'}</p>
+          <p>Color Challenge Active: {colorChallengeActive ? 'Yes' : 'No'}</p>
         </div>
       )}
     </div>
@@ -263,7 +321,7 @@ function LevelOneLogic({
   onLevelComplete,
   showWarning,
   setShowWarning,
-  amyAction,
+  challengeCompleted
 }) {
   const gameLogic = useGameLogic();
   const [keysPressed, setKeysPressed] = useState({ forward: false, backward: false, left: false, right: false });
@@ -271,95 +329,27 @@ function LevelOneLogic({
   const playerRef = useRef();
   const amyRef = useRef();
   const [amyIsWalking, setAmyIsWalking] = useState(false);
-  const [amyAtDoor, setAmyAtDoor] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
   const frameCount = useRef(0);
 
   useFrame((_, delta) => {
-    if (!playerRef.current || !amyRef.current || levelComplete) return;
-  
+    if (!playerRef.current || !amyRef.current || levelComplete || challengeCompleted) return;
+
     const playerPos = playerRef.current.position;
     const amyPos = amyRef.current.position;
-    const distance = playerPos.distanceTo(amyPos);
-  
-    // Start running when player gets close
-    if (distance < 3 && !amyIsWalking) {
-      setAmyIsWalking(true);
-      if (amyAction !== 'running') {
-        onAmyActionChange('running');
-      }
-    }
-    
-  
-    if (amyIsWalking) {
-      // Calculate direction to door using a predictive target point
-      // This helps make the movement more smooth and natural
-      const distanceToDoor = amyPos.distanceTo(keyPosition);
-      
-      
-      // Calculate the target with some path smoothing
-      const targetPoint = new THREE.Vector3().copy(keyPosition);
-      
-      // Get direction vector
-      const direction = new THREE.Vector3().subVectors(targetPoint, amyPos).normalize();
-      
-      // Move at constant speed regardless of frame rate
-      const speed = 0.75 * delta;
-      
-      // Apply movement directly to the ref without resetting
-      amyRef.current.position.add(direction.multiplyScalar(speed));
-      
-      // Smooth rotation towards target
-      const currentRotation = amyRef.current.rotation.clone();
-      const targetRotation = new THREE.Euler();
-      
-      // Calculate angle to face door
-      const angle = Math.atan2(
-        keyPosition.x - amyRef.current.position.x,
-        keyPosition.z - amyRef.current.position.z
-      );
-      
-      // Set target rotation Y (keeping X and Z as they are)
-      targetRotation.set(
-        currentRotation.x,
-        angle,
-        currentRotation.z
-      );
-      
-      // Smoothly interpolate rotation (slerp equivalent for Euler angles)
-      amyRef.current.rotation.y = THREE.MathUtils.lerp(
-        currentRotation.y,
-        targetRotation.y,
-        0.1
-      );
-      // Update state position every 10 frames to prevent stutter
-    if (frameCount.current % 10 === 0) {
-      setAmyPosition([
-        amyRef.current.position.x,
-        amyRef.current.position.y,
-        amyRef.current.position.z
-      ]);
-    }
-    frameCount.current++;
+    const distanceToPlayer = playerPos.distanceTo(amyPos);
 
-  
-      // Check if we've reached the door
-      if (distanceToDoor < 0.5) {
-        setAmyIsWalking(false);
-        onAmyActionChange('idle');
-        setLevelComplete(true);
+    if (distanceToPlayer < 3 && !amyIsWalking) {
+      setAmyIsWalking(true);
+      onAmyActionChange('talking');
+      setTimeout(() => {
         onLevelComplete();
-      }
-      
-      // Update state position to match ref position - only for UI/logic tracking
-      // Do this infrequently to avoid performance impact
-      setAmyPosition([
-        amyRef.current.position.x,
-        amyRef.current.position.y,
-        amyRef.current.position.z
-      ]);
+        // Reset Amy's state after completing level
+        setAmyIsWalking(false);
+      }, 2000);
     }
   });
+
   // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -380,7 +370,7 @@ function LevelOneLogic({
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
@@ -397,7 +387,7 @@ function LevelOneLogic({
         ref={playerRef}
         roleName={gameLogic.selectedRole || "Player"}
         position={[-1, 0, -3]}
-        scale={[2, 2, 2]}
+        scale={[2.5, 2.5, 2.5]}
         isPlayerControlled={true}
         isSpecialAction={gameLogic.isSpecialAction}
         movement={keysPressed}
@@ -416,14 +406,16 @@ function LevelOneLogic({
         isSpecialAction={false}
         movement={{}}
         cameraRef={null}
-        updateGameLogicPosition={() => {}}
-        onStartGame={() => {}}
+        updateGameLogicPosition={() => { }}
+        onStartGame={() => { }}
         isLoading={isLoading}
-        action={amyAction || 'idle'} 
+        action={gameLogic.amyAction || 'idle'}
       />
 
-      <Key position={keyPosition} scale={[2, 2, 2]} rotation={[0, -Math.PI,0]}/>
-      
+      {challengeCompleted && (
+        <Key position={keyPosition} scale={[2, 2, 2]} rotation={[0, -Math.PI, 0]} />
+      )}
+
       <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 4, 10]} fov={75} />
     </Physics>
   );

@@ -15,6 +15,9 @@ import LevelOne from './components/Teamopia/LevelOne/LevelOne';
 import LevelTwo from './components/Teamopia/LevelTwo/LevelTwo';
 import LevelThree from './components/Teamopia/LevelThree/LevelThree';
 import './shader-chunks';
+import EmpathyWheel from './components/EmpathyTest/EmpathyWheel';
+import SharingGame from './components/SharingGame/SharingGame';
+import ConflictResolution from './components/ConflictResolution/ConflictScene';
 
 
 
@@ -34,6 +37,9 @@ function App() {
         <Route path="/Teamopia/LevelOne" element={<LevelOne />} />
         <Route path="/Teamopia/LevelTwo" element={<LevelTwo />} />
         <Route path="/Teamopia/LevelThree" element={<LevelThree />} />
+        <Route path="/EmpathyTest" element={<EmpathyWheel />} />
+        <Route path="/SharingGame" element={<SharingGame />} />
+        <Route path="/ConflictResoulution" element={<ConflictResolution />} />
 
         
         

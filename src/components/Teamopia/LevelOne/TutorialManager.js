@@ -12,6 +12,7 @@ const TutorialManager = ({
   showWarning,
   setShowWarning,
   gameStarted,
+  colorChallengeActive,
 
 
 }) => {
@@ -35,66 +36,15 @@ const TutorialManager = ({
     );
   };
 
-  // Call useFrame unconditionally
   useFrame(() => {
-    if (!playerPosition || !amyPosition || !keyPosition) return;
-
+    if (!playerPosition || !amyPosition) return;
+  
     const playerAmyDistance = checkDistance(playerPosition, amyPosition);
-    const playerKeyDistance = checkDistance(playerPosition, keyPosition);
-    const amyKeyDistance = checkDistance(amyPosition, keyPosition);
-
-    // Update debug info
-    setDebugInfo({
-      playerToAmy: playerAmyDistance.toFixed(2),
-      playerToKey: playerKeyDistance.toFixed(2),
-      amyToKey: amyKeyDistance.toFixed(2)
-    });
-
+  
     // Tutorial Step 0: Approach Amy
     if (tutorialStep === 0) {
       if (playerAmyDistance < 3) {
-        console.log('Tutorial Step 1 triggered: Player approached Amy');
         setTutorialStep(1);
-        
-      }
-    }
-
-    // Tutorial Step 1: Find the door together
-    if (tutorialStep === 1) {
-      prevDistanceRef.current = playerAmyDistance;
-
-      if (playerAmyDistance > 5) {
-        if (!showWarning) {
-          console.log('Warning triggered: Player too far from Amy');
-          setShowWarning(true);
-          
-
-          if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          timeoutRef.current = setTimeout(() => {
-            if (checkDistance(playerPosition, amyPosition) > 5) {
-              console.log('Game over: Player stayed too far from Amy');
-              setHasLost(true);
-            }
-          }, 3000);
-        }
-      } else {
-        if (showWarning) {
-          console.log('Warning cleared: Player returned to Amy');
-          setShowWarning(false);
-        }
-
-       
-
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          timeoutRef.current = null;
-        }
-      }
-
-      // Level completion check: both near the door
-      if (playerKeyDistance < 4 && amyKeyDistance < 4) {
-        console.log('Level Complete! Both reached the door');
-        setTutorialStep(2); // Move to next step if needed
       }
     }
   });

@@ -29,7 +29,7 @@ export default function Dashboard() {
 
       {/* Greeting Message */}
       <div className="px-6 py-4 w-full text-left">
-        <h1 className="text-2xl font-bold">Hello Moss!</h1>
+        <h1 className="text-2xl font-bold">Hello!</h1>
         <p className="text-lg">What would you like to work on today?</p>
       </div>
 

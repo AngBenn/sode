@@ -12,7 +12,7 @@ export default function ScenarioDetail() {
   const [showScenario, setShowScenario] = useState(false);
 
   const scenarioDetails = {
-    "Empathy Test": { description: "Test your ability to empathize with others.", image: "/images/empathy.png" },
+    "Empathy Test": { description: "Test your ability to empathize with others.", image: "/images/Teamopia4.png" },
     "Collaboration Task": { description: "Work together with others to complete a task.", image: "/images/collaboration.png" },
     "Sharing Is Caring": { description: "Practice sharing with others in this game.", image: "/images/Teamopia6.png" },
     "Communication Drill": { description: "Improve your communication skills.", image: "/images/communication.png" },
@@ -67,16 +67,37 @@ export default function ScenarioDetail() {
           navigate(`/Teamopia/LevelOne`);
         } else if (levelNumber === "2") {
           navigate(`/Teamopia/LevelTwo`);
-        }
-        else if (levelNumber === "3") {
+        } else if (levelNumber === "3") {
           navigate(`/Teamopia/LevelThree`);
         } else {
           setShowScenario(true);
         }
-      } else {
+      } else if (scenarioName === "Empathy Test") {
+        if (levelNumber === "1") {
+          navigate(`/EmpathyTest`);
+        } else {
+          setShowScenario(true);
+        }
+      } else if (scenarioName === "Sharing Is Caring") {
+        if (levelNumber === "1") {
+          navigate(`/SharingGame`);
+        } else {
+          setShowScenario(true);
+        }
+      }
+        else if (scenarioName === "Resolving Conflicts") {
+          if (levelNumber === "1") {
+            navigate(`/ConflictResoulution`);
+          } else {
+            setShowScenario(true);
+          }
+      }else {
         setShowScenario(true);
       }
+      
+      
     }, 1000);
+    
 
   };
 

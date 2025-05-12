@@ -47,10 +47,6 @@ export default function ProgressAndReports() {
                             <h2 className="text-xl font-bold">User Profile</h2>
                             <p className="text-sm text-gray-600">Learning Journey Summary</p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-sm text-gray-600">Current Level: <span className="font-bold text-purple-600">Advanced Beginner</span></p>
-                            <p className="text-sm text-gray-600">Total Coins: <span className="font-bold text-purple-600">60</span></p>
-                        </div>
                     </div>
 
                     {/* Progress Section */}
@@ -58,8 +54,8 @@ export default function ProgressAndReports() {
                         <h2 className="text-2xl font-bold mb-6 border-l-4 border-purple-600 pl-3">Progress Overview</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {[
-                                { title: 'Social Skills Score', value: 75, label: '75% completed' },
-                                { title: 'Completed Scenarios', value: 50, label: '3/6 scenarios' },
+                                { title: 'Social Skills Score', value: 85, label: '85% proficiency' },
+                                { title: 'Completed Scenarios', value: 83, label: '5/6 scenarios' },
                                 { title: 'Engagement Level', value: 90, label: 'Highly Engaged' }
                             ].map((metric, index) => (
                                 <div key={index} className="bg-gray-50 p-6 rounded-xl shadow-sm">
@@ -88,7 +84,7 @@ export default function ProgressAndReports() {
                                     Strengths
                                 </h3>
                                 <ul className="space-y-3">
-                                    {['Active Listening', 'Empathy'].map((item, index) => (
+                                    {['Conflict Resolution', 'Empathy', 'Cooperation'].map((item, index) => (
                                         <li key={index} className="flex items-center text-gray-700">
                                             <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                                             {item}
@@ -103,7 +99,7 @@ export default function ProgressAndReports() {
                                     Areas for Improvement
                                 </h3>
                                 <ul className="space-y-3">
-                                    {['Conflict Resolution', 'Small Talk'].map((item, index) => (
+                                    {['Active Listening', 'Reading Social Cues'].map((item, index) => (
                                         <li key={index} className="flex items-center text-gray-700">
                                             <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
                                             {item}
@@ -114,14 +110,28 @@ export default function ProgressAndReports() {
                         </div>
                     </section>
 
-                    {/* Summary Section */}
+                    {/* Coach's Notes Section */}
                     <div className="mt-8 p-6 bg-purple-50 rounded-xl">
                         <h3 className="text-lg font-semibold mb-3">Coach's Notes</h3>
-                        <p className="text-gray-700 text-sm leading-relaxed">
-                            "You've shown remarkable progress in emotional intelligence and active listening skills. 
-                            Continue practicing scenario-based exercises to improve your nonverbal communication. 
-                            Your consistency in daily practice is commendable - keep it up!"
+                        <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                            "You've demonstrated exceptional progress in managing interpersonal conflicts and showing empathy toward others. Your ability to collaborate in group scenarios has been particularly impressive. Your consistent practice and willingness to engage with challenging scenarios has led to significant improvement over the past month."
                         </p>
+                        
+                        <h4 className="font-medium text-purple-700 mb-2">Action Points:</h4>
+                        <ul className="text-gray-700 text-sm space-y-2">
+                            <li className="flex items-start">
+                                <span className="text-purple-500 mr-2">→</span>
+                                <span>Practice active listening techniques daily: maintain eye contact, ask clarifying questions, and summarize what others have said.</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-purple-500 mr-2">→</span>
+                                <span>Work on identifying nonverbal cues by observing interactions in social settings and noting body language patterns.</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-purple-500 mr-2">→</span>
+                                <span>Complete the remaining scenario focusing on complex social dynamics in workplace environments.</span>
+                            </li>
+                        </ul>
                     </div>
 
                     {/* Footer */}

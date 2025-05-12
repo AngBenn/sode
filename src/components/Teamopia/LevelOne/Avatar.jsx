@@ -15,15 +15,33 @@ const Avatar = forwardRef(function Avatar({
   movement = {},
   cameraRef,
   obstacles = [],
-  updateGameLogicPosition = () => {},
-  onStartGame = () => {},
+  updateGameLogicPosition = () => { },
+  onStartGame = () => { },
   action = null
 }, ref) {
   const modelPath = roleName === 'Map Keeper' ? '/models/Kofi.glb' : '/models/Amy.glb';
   const { scene, animations } = useGLTF(modelPath);
-  const { actions } = useAnimations(animations, scene);
+  const { actions, mixer } = useAnimations(animations, scene);
   const groupRef = useRef();
   const internalRef = useRef();
+
+  // Jump and slide states
+  const [isJumping, setIsJumping] = useState(false);
+  const [isSliding, setIsSliding] = useState(false);
+  const velocity = useRef(new THREE.Vector3());
+  const isGrounded = useRef(true);
+  
+  // Movement momentum reference
+  const momentum = useRef({
+    direction: new THREE.Vector3(),
+    speed: 0
+  });
+
+  // Key press tracking
+  const keysPressed = useRef({
+    jump: false,
+    slide: false
+  });
 
   // Sync refs
   useEffect(() => {
@@ -31,12 +49,10 @@ const Avatar = forwardRef(function Avatar({
     internalRef.current = groupRef.current;
   }, [ref]);
 
-
-
   const [hovered, setHovered] = useState(false);
   const isMapKeeper = roleName.includes('Map');
 
-  const speed =  0.05;
+  const speed = 0.07;
   const rotateSpeed = 0.04;
   const direction = new THREE.Vector3();
 
@@ -45,6 +61,50 @@ const Avatar = forwardRef(function Avatar({
     config: { tension: 300, friction: 20 }
   });
 
+  // Add keyboard event listeners for jump and slide
+  useEffect(() => {
+    if (!isPlayerControlled) return;
+
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' && isGrounded.current) {
+        keysPressed.current.jump = true;
+        setIsJumping(true);
+        
+        // Apply jump force with forward momentum
+        velocity.current.y = 0.15;
+        
+        // Always apply forward momentum during jump, similar to slide
+        const jumpDirection = new THREE.Vector3(0, 0, 1)
+          .applyEuler(groupRef.current.rotation)
+          .normalize();
+        
+        // Apply stronger forward momentum (2.5x like slide)
+        velocity.current.x = jumpDirection.x * speed * 2.5;
+        velocity.current.z = jumpDirection.z * speed * 2.5;
+      } else if (e.code === 'ArrowDown') {
+        keysPressed.current.slide = true;
+        setIsSliding(true);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (e.code === 'Space') {
+        keysPressed.current.jump = false;
+      } else if (e.code === 'ArrowDown') {
+        keysPressed.current.slide = false;
+        setIsSliding(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [isPlayerControlled]);
+
+  // Update animation config with jump and slide
   const animationConfig = useMemo(() => ({
     idle: 'idle',
     move: isMapKeeper ? 'running' : 'walking',
@@ -53,72 +113,74 @@ const Avatar = forwardRef(function Avatar({
     talking: 'talking',
     running: 'running',
     walking: 'walking',
+    jump: 'jump',
+    slide: 'slide'
   }), [isMapKeeper]);
 
   const currentActionRef = useRef(null);
 
+ 
   useEffect(() => {
-    // Only set initial position once when the component mounts
-    // and don't update it from props after that for non-player controlled avatars
-    if (internalRef.current && !isPlayerControlled) {
-      // Only set position from props on initial mount
-      if (!internalRef.current.positionInitialized) {
-        internalRef.current.position.set(...position);
-        internalRef.current.positionInitialized = true;
+    if (!actions || !animationConfig) return;
+
+    const handleAnimationFinish = () => {
+      if (isJumping) setIsJumping(false);
+      if (isSliding) setIsSliding(false);
+    };
+
+    let nextAction;
+    let actionName;
+
+    if (action) {
+      actionName = animationConfig[action] || action;
+      nextAction = actions[actionName] || actions['idle'];
+    } else {
+      const isMoving = movement.left || movement.right || movement.forward || movement.backward;
+      
+      if (isJumping && actions[animationConfig.jump]) {
+        actionName = animationConfig.jump;
+      } else if (isSliding && actions[animationConfig.slide]) {
+        actionName = animationConfig.slide;
+      } else {
+        actionName = isSpecialAction
+          ? animationConfig.special || animationConfig.celebrate
+          : isMoving
+          ? animationConfig.move
+          : animationConfig.idle;
       }
+      nextAction = actions[actionName];
     }
-  }, []);
-  
- // In Avatar.js, UPDATE the animation useEffect:
-useEffect(() => {
-  if (!actions || !animationConfig) return;
 
-  let nextAction;
-  let actionName;
+    if (!nextAction) return;
 
-  if (action) {
-    actionName = animationConfig[action] || action;
-    nextAction = actions[actionName] || actions['idle'];
-  } else {
-    const isMoving = movement.left || movement.right || movement.forward || movement.backward;
-    actionName = isSpecialAction
-      ? animationConfig.special || animationConfig.celebrate
-      : isMoving
-      ? animationConfig.move
-      : animationConfig.idle;
-    nextAction = actions[actionName];
-  }
+    if (currentActionRef.current !== nextAction) {
+      const oldAction = currentActionRef.current;
+      
+      if (oldAction) {
+        oldAction.fadeOut(0.2);
+        mixer.removeEventListener('finished', handleAnimationFinish);
+      }
 
-  if (currentActionRef.current !== nextAction && nextAction) {
-    const oldAction = currentActionRef.current;
-    if (oldAction) {
-      // Store the current time before fading out
-      const storedTime = oldAction.time;
-      oldAction.fadeOut(0.2).stop();
-      // If switching back to the same action later, resume time
-      nextAction.time = storedTime;
+      nextAction.reset();
+      
+      if (actionName === animationConfig.jump || actionName === animationConfig.slide) {
+        nextAction.setLoop(THREE.LoopOnce);
+        nextAction.clampWhenFinished = true;
+        mixer.addEventListener('finished', handleAnimationFinish);
+      } else {
+        nextAction.setLoop(THREE.LoopRepeat);
+      }
+
+      nextAction
+        .setEffectiveTimeScale(1)
+        .setEffectiveWeight(1)
+        .fadeIn(0.15)
+        .play();
+
+      currentActionRef.current = nextAction;
     }
-    
-    nextAction
-      .reset() // Only reset if it's a different action
-      .setEffectiveTimeScale(1)
-      .fadeIn(0.2)
-      .play();
-    
-    currentActionRef.current = nextAction;
-  } else if (nextAction && !nextAction.isRunning()) {
-    // If same action but paused, resume from current time
-    nextAction.play();
-  }
+  }, [action, actions, movement, isSpecialAction, animationConfig, isJumping, isSliding, mixer]);
 
-  if (actionName === 'running' || actionName === 'walking') {
-    nextAction.loop = THREE.LoopRepeat;
-    nextAction.clampWhenFinished = false;
-    // Remove any custom loop blending logic to rely on Three.js's built-in loop
-  }
-}, [action, actions, movement, isSpecialAction, animationConfig]);
-          
-       
   const checkCollision = (dir) => {
     const raycaster = new THREE.Raycaster(groupRef.current.position, dir.clone().normalize());
     const intersects = raycaster.intersectObjects(obstacles, true);
@@ -133,9 +195,6 @@ useEffect(() => {
     onStartGame();
   };
 
-
-
-
   useEffect(() => {
     const timer = setTimeout(() => setShowStartButton(true), 500);
     return () => clearTimeout(timer);
@@ -146,11 +205,13 @@ useEffect(() => {
     maxX: 5,
     minZ: -200,
     maxZ: 0,
-    minY: 1,
+    minY: 0, // Ground level
     maxY: 100,
   };
 
   const lastPosition = useRef(new THREE.Vector3());
+  
+  // Modified frame update with improved jump and slide physics
   useFrame((_, delta) => {
     if (!internalRef.current || !isPlayerControlled) return;
 
@@ -160,52 +221,125 @@ useEffect(() => {
 
     const group = internalRef.current;
 
+    // Apply gravity when not grounded
+    if (!isGrounded.current || group.position.y > bounds.minY) {
+      velocity.current.y -= 0.01 * delta * 60;
+    }
+    
+    // Apply vertical velocity
+    group.position.y += velocity.current.y;
+
+    // Ground check
+    if (group.position.y <= bounds.minY) {
+      group.position.y = bounds.minY;
+      velocity.current.y = 0;
+      isGrounded.current = true;
+      
+      // Only stop horizontal momentum if not sliding or jumping
+      if (!isJumping && !isSliding) {
+        velocity.current.x *= 0.9; // Friction
+        velocity.current.z *= 0.9; // Friction
+      }
+    } else {
+      isGrounded.current = false;
+      
+      // Apply jump momentum during air time
+      group.position.x += velocity.current.x;
+      group.position.z += velocity.current.z;
+    }
+
+    // Handle rotation
     if (movement.left) group.rotation.y += frameRotateSpeed;
     if (movement.right) group.rotation.y -= frameRotateSpeed;
 
+    // Calculate movement direction
     direction.set(0, 0, 0);
     if (movement.forward) direction.z += 1;
     if (movement.backward) direction.z -= 1;
 
+    // Update momentum reference for jumps
     if (direction.length() > 0) {
       const worldDir = direction.clone()
         .applyEuler(group.rotation)
-        .normalize()
-        .multiplyScalar(frameSpeed);
+        .normalize();
       
-      if (!checkCollision(worldDir)) {
-        group.position.add(worldDir);
+      momentum.current.direction.copy(worldDir);
+      momentum.current.speed = frameSpeed;
+      
+      // Only move if on ground and not jumping (jump movement is handled by velocity)
+      if (isGrounded.current && !isJumping) {
+        if (!checkCollision(worldDir)) {
+          const moveVec = worldDir.clone().multiplyScalar(frameSpeed);
+          group.position.add(moveVec);
+        }
+      }
+    } else {
+      // Gradually reduce momentum when not actively moving
+      momentum.current.speed *= 0.95;
+    }
+    
+    // Apply slide momentum - enhanced forward movement during slide
+    if (isSliding && isGrounded.current) {
+      const slideDirection = new THREE.Vector3(0, 0, 1)
+        .applyEuler(group.rotation)
+        .normalize()
+        .multiplyScalar(frameSpeed * 2.5); // Increased slide speed
+      
+      if (!checkCollision(slideDirection)) {
+        group.position.add(slideDirection);
+      }
+    }
+    
+    // Keep jump momentum consistent during entire jump duration
+    if (isJumping && !isGrounded.current) {
+      // Add a little extra forward momentum during the jump arc
+      const jumpBoost = new THREE.Vector3(
+        velocity.current.x,
+        0,
+        velocity.current.z
+      ).normalize().multiplyScalar(frameSpeed * 0.5);
+      
+      if (!checkCollision(jumpBoost)) {
+        group.position.add(jumpBoost);
       }
     }
 
-    // Smooth position updates
-    group.position.x = THREE.MathUtils.lerp(
+    // Apply horizontal air momentum (for jumps)
+    if (!isGrounded.current) {
+      // Reduced air resistance to maintain momentum better during jumps
+      velocity.current.x *= 0.995;
+      velocity.current.z *= 0.995;
+    }
+
+    // Enforce bounds
+    group.position.x = THREE.MathUtils.clamp(
       group.position.x,
-      Math.max(bounds.minX, Math.min(bounds.maxX, group.position.x)),
-      0.1
-    );
-    
-    group.position.z = THREE.MathUtils.lerp(
-      group.position.z,
-      Math.max(bounds.minZ, Math.min(bounds.maxZ, group.position.z)),
-      0.1
+      bounds.minX,
+      bounds.maxX
     );
 
+    group.position.z = THREE.MathUtils.clamp(
+      group.position.z,
+      bounds.minZ,
+      bounds.maxZ
+    );
+
+    // Update game logic position
     updateGameLogicPosition([group.position.x, group.position.y, group.position.z]);
 
-      if (cameraRef?.current) {
-        const cam = cameraRef.current;
-        const offset = gameStarted
-          ? new THREE.Vector3(1, 4, -9).applyEuler(group.rotation)
-          : new THREE.Vector3(0, 5, -10);
-        const targetPos = group.position.clone().add(offset);
-        targetPos.y = gameStarted ? 5.5 : 4;
+    // Camera follow logic
+    if (cameraRef?.current) {
+      const cam = cameraRef.current;
+      const offset = gameStarted
+        ? new THREE.Vector3(1, 4, -9).applyEuler(group.rotation)
+        : new THREE.Vector3(0, 5, -10);
+      const targetPos = group.position.clone().add(offset);
+      targetPos.y = gameStarted ? 5.0 : 4;
 
-        lastPosition.current.lerp(targetPos, 0.1);
-        cam.position.copy(lastPosition.current);
-        cam.lookAt(group.position);
-      }
-   
+      lastPosition.current.lerp(targetPos, 0.1);
+      cam.position.copy(lastPosition.current);
+      cam.lookAt(group.position);
+    }
   });
 
   return (
@@ -267,7 +401,7 @@ useEffect(() => {
   );
 });
 
-useGLTF.preload('/models/map_keeper.glb');
-useGLTF.preload('/models/keyholder.glb');
+useGLTF.preload('/models/Kofi.glb');
+useGLTF.preload('/models/Amy.glb');
 
 export default Avatar;

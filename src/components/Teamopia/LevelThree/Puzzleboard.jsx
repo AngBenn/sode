@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Puzzleboard.css';
+import { useNavigate } from 'react-router-dom';
 
 const puzzles = [
   {
@@ -54,6 +55,7 @@ const PuzzleBoard = ({ onPuzzleComplete }) => {
   const [completed, setCompleted] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [showWarning, setShowWarning] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     initializePuzzle();
@@ -161,9 +163,26 @@ const PuzzleBoard = ({ onPuzzleComplete }) => {
             </div>
           )}
           {completed && (
-            <button className="next-button" onClick={() => setCurrentLevel(prev => prev + 1)}>
-              Next Level ➡️
-            </button>
+              <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+              <div className="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-md w-full animate-fade-in">
+                <h2 className="text-3xl font-bold mb-4 text-green-600">🎉 Level Complete!</h2>
+          
+                <div className="flex justify-center gap-2 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className="text-4xl animate-pulse">⭐</span>
+                  ))}
+                </div>
+          
+                <p className="text-lg text-gray-700 mb-6">You've successfully completed the challenge!</p>
+          
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition"
+                >
+                  Back to Dashboard
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
