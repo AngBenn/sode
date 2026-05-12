@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useGLTF, useAnimations } from '@react-three/drei';
 
-const AvatarDebug = ({ roleName = 'Map Keeper' }) => {
-  const modelPath = roleName === 'Map Keeper' ? '/models/map_keeper.glb' : '/models/keyholder.glb';
+const AvatarDebug = ({ roleName = 'You' }) => {
+  const modelPath = roleName === 'You' ? '/models/map_keeper.glb' : '/models/keyholder.glb';
 
   const { scene, animations } = useGLTF(modelPath);
   const { actions } = useAnimations(animations, scene);
