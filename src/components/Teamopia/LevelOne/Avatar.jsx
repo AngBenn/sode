@@ -1,4 +1,4 @@
-import { useGLTF, useAnimations, Html } from '@react-three/drei';
+import { useGLTF, useAnimations, Text, Html } from '@react-three/drei';
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useSpring, animated } from '@react-spring/three';
@@ -352,7 +352,17 @@ const Avatar = forwardRef(function Avatar({
         onPointerOut={() => setHovered(false)}
       >
         <primitive object={scene} scale={scale} />
-        
+        <AnimatedText
+          position={[0, 2.5, 0]}
+          fontSize={0.4}
+          color={isMapKeeper ? "#4A90E2" : "#FFD700"}
+          outlineColor={glowIntensity.to(v => `rgba(255,255,255,${v * 0.5})`)}
+          outlineWidth={glowIntensity.to(v => 0.05 + v * 0.1)}
+          anchorX="center"
+          anchorY="middle"
+        >
+          {roleName}
+        </AnimatedText>
       </group>
 
       {showStartButton && !gameStarted && isPlayerControlled && (
