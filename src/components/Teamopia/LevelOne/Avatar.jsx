@@ -1,4 +1,4 @@
-import { useGLTF, useAnimations, Text, Html } from '@react-three/drei';
+import { useGLTF, useAnimations, Html } from '@react-three/drei';
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useSpring, animated } from '@react-spring/three';
