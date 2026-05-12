@@ -7,7 +7,7 @@ import * as THREE from 'three';
 const AnimatedText = animated(Text);
 
 const Avatar = forwardRef(function Avatar({
-  roleName = 'Map Keeper',
+  roleName = 'You',
   position = [0, 1, 0],
   scale = [1, 1, 1],
   isPlayerControlled = false,
@@ -19,7 +19,7 @@ const Avatar = forwardRef(function Avatar({
   onStartGame = () => { },
   action = null
 }, ref) {
-  const modelPath = roleName === 'Map Keeper' ? '/models/Kofi.glb' : '/models/Amy.glb';
+  const modelPath = roleName === 'You' ? '/models/Kofi.glb' : '/models/Amy.glb';
   const { scene, animations } = useGLTF(modelPath);
   const { actions, mixer } = useAnimations(animations, scene);
   const groupRef = useRef();
