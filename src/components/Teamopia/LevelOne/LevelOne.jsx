@@ -385,7 +385,7 @@ function LevelOneLogic({
 
       <Avatar
         ref={playerRef}
-        roleName="You"
+        roleName={gameLogic.selectedRole || "Player"}
         position={[-1, 0, -3]}
         scale={[2.5, 2.5, 2.5]}
         isPlayerControlled={true}

@@ -1,11 +1,13 @@
-import { useGLTF, useAnimations, Html } from '@react-three/drei';
+import { useGLTF, useAnimations, Text, Html } from '@react-three/drei';
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useSpring, animated } from '@react-spring/three';
 import * as THREE from 'three';
 
+const AnimatedText = animated(Text);
 
 const Avatar = forwardRef(function Avatar({
-  roleName = 'MapKeeper',
+  roleName = 'Map Keeper',
   position = [0, 1, 0],
   scale = [1, 1, 1],
   isPlayerControlled = false,
@@ -17,7 +19,7 @@ const Avatar = forwardRef(function Avatar({
   onStartGame = () => { },
   action = null
 }, ref) {
-  const modelPath = roleName === 'MapKeeper' ? '/models/Kofi.glb' : '/models/Amy.glb';
+  const modelPath = roleName === 'Map Keeper' ? '/models/Kofi.glb' : '/models/Amy.glb';
   const { scene, animations } = useGLTF(modelPath);
   const { actions, mixer } = useAnimations(animations, scene);
   const groupRef = useRef();
@@ -54,7 +56,10 @@ const Avatar = forwardRef(function Avatar({
   const rotateSpeed = 0.04;
   const direction = new THREE.Vector3();
 
- 
+  const { glowIntensity } = useSpring({
+    glowIntensity: hovered ? 1 : 0,
+    config: { tension: 300, friction: 20 }
+  });
 
   // Add keyboard event listeners for jump and slide
   useEffect(() => {
@@ -347,7 +352,17 @@ const Avatar = forwardRef(function Avatar({
         onPointerOut={() => setHovered(false)}
       >
         <primitive object={scene} scale={scale} />
-        
+        <AnimatedText
+          position={[0, 2.5, 0]}
+          fontSize={0.4}
+          color={isMapKeeper ? "#4A90E2" : "#FFD700"}
+          outlineColor={glowIntensity.to(v => `rgba(255,255,255,${v * 0.5})`)}
+          outlineWidth={glowIntensity.to(v => 0.05 + v * 0.1)}
+          anchorX="center"
+          anchorY="middle"
+        >
+          {roleName}
+        </AnimatedText>
       </group>
 
       {showStartButton && !gameStarted && isPlayerControlled && (
